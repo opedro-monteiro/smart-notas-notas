@@ -1,0 +1,9 @@
+services:
+  postgresql:
+    image: "bitnami/postgresql:latest"
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRESQL_USERNAME: smart
+      POSTGRESQL_PASSWORD: postgres
+      POSTGRESQL_DATABASE: smart-notas-db

@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String 
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  clients   Client[]
+}
+
+model Client {
+  id        String   @id @default(uuid())
+  name      String
+  phone     String?
+  email     String?
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  debts Debt[]
+}
+
+model Debt {
+  id        String      @id @default(uuid())
+  amount    Float
+  dueDate   DateTime
+  status    DebtStatus  @default(PENDING)
+  createdAt DateTime    @default(now())
+
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  messages MessageLog[]
+}
+
+model MessageLog {
+  id        String        @id @default(uuid())
+  channel   MessageChannel
+  status    MessageStatus
+  content   String?
+  sentAt    DateTime?
+  createdAt DateTime      @default(now())
+
+  debtId String
+  debt   Debt @relation(fields: [debtId], references: [id], onDelete: Cascade)
+}
+
+enum DebtStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+enum MessageChannel {
+  SMS
+  WHATSAPP
+  EMAIL
+  CALL
+}
+
+enum MessageStatus {
+  PENDING
+  SENT
+  FAILED
+}
