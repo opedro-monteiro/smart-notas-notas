@@ -13,6 +13,7 @@ import {
 } from "fastify-type-provider-zod";
 import z from "zod";
 
+import { routes } from "./routes.js";
 import { type UserDTO, UserSchema } from "./types/users.js";
 
 const app = Fastify({
@@ -67,6 +68,8 @@ app.withTypeProvider<ZodTypeProvider>().route({
     };
   },
 });
+
+app.register(routes);
 
 app.withTypeProvider<ZodTypeProvider>().route({
   method: "GET",
