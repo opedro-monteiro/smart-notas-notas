@@ -1,0 +1,27 @@
+{
+  "name": "smart-notas-notas",
+  "version": "1.0.0",
+  "description": "the api for smart notas plataform",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx --watch src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "fastify",
+    "api",
+    "docker"
+  ],
+  "author": "opedro-monteiro",
+  "license": "ISC",
+  "dependencies": {
+    "husky": "^9.1.7"
+  },
+  "devDependencies": {
+    "@types/node": "22",
+    "eslint": "^10.1.0",
+    "prettier": "3.8.1",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3"
+  }
+}
