@@ -18,8 +18,8 @@ model User {
   fullName  String?
   imageUrl  String?
   email     String   @unique
+  password String?
   createdAt DateTime @default(now())
-
   clients   Client[]
 }
 
