@@ -13,10 +13,11 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  username  String 
+  id        String   @id
+  username  String?
+  fullName  String?
+  imageUrl  String?
   email     String   @unique
-  password  String
   createdAt DateTime @default(now())
 
   clients   Client[]
