@@ -1,5 +1,6 @@
 import "dotenv/config";
 
+import cors from "@fastify/cors";
 import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUI from "@fastify/swagger-ui";
 import Fastify from "fastify";
@@ -13,6 +14,9 @@ import z from "zod";
 
 const app = Fastify({
   logger: true,
+});
+await app.register(cors, {
+  origin: "*",
 });
 
 app.setValidatorCompiler(validatorCompiler);
