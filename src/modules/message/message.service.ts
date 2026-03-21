@@ -1,35 +1,33 @@
-import twilio from "twilio";
-
-import { MessageChannel } from "../../../generated/prisma/enums.js";
-import { twilioStatusMap } from "../../shared/utils/message-status-labels.js";
-import {
-  createMessageLog,
-  findMessagesByDebtId,
-} from "./message.repository.js";
-
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const phoneNumber = process.env.PHONE_NUMBER;
-const client = twilio(accountSid, authToken);
+import { type MessageChannel } from "../../../generated/prisma/enums.js";
+import { findDebtWithClient } from "../debt/debt.repository.js";
+import { messageQueue } from "../../jobs/queues/message.queue.js";
+import { findMessagesByDebtId } from "./message.repository.js";
 
 export async function listMessages(debtId: string) {
   return findMessagesByDebtId(debtId);
 }
 
-export async function sendMessage(data: {
+export async function enqueueMessages(data: {
   debtId: string;
-  channel: MessageChannel;
-  content?: string;
+  channels?: MessageChannel[];
 }) {
-  const twilloResponse = await client.messages.create({
-    body: data.content,
-    from: phoneNumber,
-    to: "+18777804236",
-  });
+  const debt = await findDebtWithClient(data.debtId);
+  const channels = data.channels && data.channels.length > 0 ? data.channels : debt.channels;
 
-  return createMessageLog({
-    ...data,
-    status: twilioStatusMap[twilloResponse.status],
-    sentAt: new Date(),
-  });
+  if (channels.length === 0) {
+    throw new Error("No channels configured for this debt");
+  }
+
+  for (const channel of channels) {
+    await messageQueue.add(
+      "send-message",
+      { debtId: data.debtId, channel },
+      {
+        attempts: 3,
+        backoff: { type: "exponential", delay: 5000 },
+      },
+    );
+  }
+
+  return { queued: channels.length };
 }
