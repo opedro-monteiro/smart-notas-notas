@@ -20,3 +20,27 @@ export async function updateDebtStatus(id: string, data: UpdateDebtStatusDTO) {
 export async function deleteDebt(id: string) {
   return prisma.debt.delete({ where: { id } });
 }
+
+export async function findDebtsDueTomorrow() {
+  const now = new Date();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(now.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+  const dayAfter = new Date(tomorrow);
+  dayAfter.setDate(tomorrow.getDate() + 1);
+
+  return prisma.debt.findMany({
+    where: {
+      status: "PENDING",
+      dueDate: { gte: tomorrow, lt: dayAfter },
+    },
+    include: { client: true },
+  });
+}
+
+export async function findDebtWithClient(id: string) {
+  return prisma.debt.findUniqueOrThrow({
+    where: { id },
+    include: { client: true },
+  });
+}
