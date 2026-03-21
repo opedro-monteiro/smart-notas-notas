@@ -13,6 +13,7 @@ import {
 } from "fastify-type-provider-zod";
 import z from "zod";
 
+import { sendMessage } from "./modules/message/message.service.js";
 import { routes } from "./routes.js";
 import { type UserDTO, UserSchema } from "./types/users.js";
 
@@ -52,7 +53,7 @@ await app.register(fastifySwaggerUI, {
 
 app.withTypeProvider<ZodTypeProvider>().route({
   method: "GET",
-  url: "/",
+  url: "/send-message",
   schema: {
     description: "hello word",
     tags: ["hello word"],
@@ -62,9 +63,14 @@ app.withTypeProvider<ZodTypeProvider>().route({
       }),
     },
   },
-  handler: () => {
+  handler: async () => {
+    const res = await sendMessage({
+      channel: "SMS",
+      debtId: "1",
+    });
+
     return {
-      message: "Pix para min",
+      message: `Resultado ${res.status}`,
     };
   },
 });

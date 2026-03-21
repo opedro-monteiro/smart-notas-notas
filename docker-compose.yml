@@ -7,3 +7,9 @@ services:
       POSTGRESQL_USERNAME: smart
       POSTGRESQL_PASSWORD: postgres
       POSTGRESQL_DATABASE: smart-notas-db
+  redis:
+    image: redis:7
+    container_name: smart_redis
+    restart: always
+    ports:
+      - "6379:6379"
