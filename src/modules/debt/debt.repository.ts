@@ -34,13 +34,13 @@ export async function findDebtsDueTomorrow() {
       status: "PENDING",
       dueDate: { gte: tomorrow, lt: dayAfter },
     },
-    include: { client: true },
+    include: { client: { include: { user: true } } },
   });
 }
 
 export async function findDebtWithClient(id: string) {
   return prisma.debt.findUniqueOrThrow({
     where: { id },
-    include: { client: true },
+    include: { client: { include: { user: true } } },
   });
 }

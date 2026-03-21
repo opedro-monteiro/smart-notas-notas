@@ -4,8 +4,11 @@ import { findDebtsDueTomorrow } from "../../modules/debt/debt.repository.js";
 import { messageQueue } from "../queues/message.queue.js";
 
 export function startDebtReminderScheduler() {
-  cron.schedule("30 8 * * *", async () => {
-    console.log("[scheduler] Running debt reminder job at", new Date().toISOString());
+  cron.schedule("05 13 * * *", async () => {
+    console.log(
+      "[scheduler] Running debt reminder job at",
+      new Date().toISOString(),
+    );
 
     const debts = await findDebtsDueTomorrow();
     console.log(`[scheduler] Found ${debts.length} debts due tomorrow`);
@@ -24,5 +27,7 @@ export function startDebtReminderScheduler() {
     }
   });
 
-  console.log("[scheduler] Debt reminder scheduler started — runs daily at 08:30");
+  console.log(
+    "[scheduler] Debt reminder scheduler started — runs daily at 13:05",
+  );
 }
