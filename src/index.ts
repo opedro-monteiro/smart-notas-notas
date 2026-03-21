@@ -15,6 +15,8 @@ import z from "zod";
 
 import { routes } from "./routes.js";
 import { type UserDTO, UserSchema } from "./types/users.js";
+import { startDebtReminderScheduler } from "./jobs/scheduler/debt-reminder.scheduler.js";
+import { messageWorker } from "./jobs/workers/message.worker.js";
 
 const app = Fastify({
   logger: true,
@@ -51,6 +53,8 @@ await app.register(fastifySwaggerUI, {
 });
 
 app.register(routes);
+
+startDebtReminderScheduler();
 
 app.withTypeProvider<ZodTypeProvider>().route({
   method: "GET",
@@ -107,3 +111,15 @@ try {
   app.log.error(err);
   process.exit(1);
 }
+
+process.on("SIGTERM", async () => {
+  await messageWorker.close();
+  await app.close();
+  process.exit(0);
+});
+
+process.on("SIGINT", async () => {
+  await messageWorker.close();
+  await app.close();
+  process.exit(0);
+});
