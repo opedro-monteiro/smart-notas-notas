@@ -1,13 +1,26 @@
 import twilio from "twilio";
+import type { CallInstance } from "twilio/lib/rest/api/v2010/account/call.js";
 
 import { MessageStatus } from "../../../../generated/prisma/enums.js";
-import { twilioStatusMap } from "../../../shared/utils/message-status-labels.js";
 import type { ClientModel, DebtModel } from "../../../../generated/prisma/models.js";
 import type { IMessageProvider } from "./message-provider.interface.js";
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const twilioClient = twilio(accountSid, authToken);
+
+type CallStatus = CallInstance["status"];
+
+const callStatusMap: Record<CallStatus, MessageStatus> = {
+  queued: MessageStatus.QUEUED,
+  ringing: MessageStatus.SENDING,
+  "in-progress": MessageStatus.SENDING,
+  completed: MessageStatus.DELIVERED,
+  busy: MessageStatus.FAILED,
+  failed: MessageStatus.FAILED,
+  "no-answer": MessageStatus.FAILED,
+  canceled: MessageStatus.CANCELED,
+};
 
 export class CallProvider implements IMessageProvider {
   async send(debt: DebtModel & { client: ClientModel }) {
@@ -23,8 +36,6 @@ export class CallProvider implements IMessageProvider {
       to: debt.client.phone,
     });
 
-    // Call statuses overlap with message statuses for common values; cast via shared map or fallback
-    const mappedStatus = twilioStatusMap[response.status as keyof typeof twilioStatusMap];
-    return { status: mappedStatus ?? MessageStatus.QUEUED };
+    return { status: callStatusMap[response.status] };
   }
 }
