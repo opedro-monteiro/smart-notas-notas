@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 export function redisConnection() {
   return {
     host: process.env.REDIS_HOST ?? "localhost",
