@@ -4,7 +4,9 @@ import { findDebtsDueTomorrow } from "../../modules/debt/debt.repository.js";
 import { messageQueue } from "../queues/message.queue.js";
 
 export function startDebtReminderScheduler() {
-  cron.schedule("05 13 * * *", async () => {
+  const cronExpression = process.env.DEBT_REMINDER_CRON ?? "05 13 * * *";
+
+  cron.schedule(cronExpression, async () => {
     console.log(
       "[scheduler] Running debt reminder job at",
       new Date().toISOString(),
@@ -28,6 +30,6 @@ export function startDebtReminderScheduler() {
   });
 
   console.log(
-    "[scheduler] Debt reminder scheduler started — runs daily at 13:05",
+    `[scheduler] Debt reminder scheduler started — cron: "${cronExpression}"`,
   );
 }
