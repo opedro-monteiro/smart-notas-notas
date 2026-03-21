@@ -22,14 +22,19 @@ export const messageWorker = new Worker(
   },
 );
 
-messageWorker.on("failed", async (job) => {
+messageWorker.on("failed", async (job, err) => {
+  console.error("[worker] Job failed:", err);
   if (job?.name === "send-message") {
     const { debtId, channel } = job.data as { debtId: string; channel: MessageChannel };
-    await createMessageLog({
-      debtId,
-      channel,
-      status: MessageStatus.FAILED,
-      sentAt: new Date(),
-    });
+    try {
+      await createMessageLog({
+        debtId,
+        channel,
+        status: MessageStatus.FAILED,
+        sentAt: new Date(),
+      });
+    } catch (logErr) {
+      console.error("[worker] Failed to write FAILED log entry:", logErr);
+    }
   }
 });
