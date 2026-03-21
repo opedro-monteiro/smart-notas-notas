@@ -1,20 +1,35 @@
-// message.worker.ts
 import { Worker } from "bullmq";
 
-import { MessageService } from "@/modules/message/message.service";
-import { TwilioProvider } from "@/modules/message/twilio.provider";
-import { redisConnection } from "@/shared/plugins/redis";
+import { type MessageChannel,MessageStatus } from "../../../generated/prisma/enums.js";
+import { findDebtWithClient } from "../../modules/debt/debt.repository.js";
+import { createMessageLog } from "../../modules/message/message.repository.js";
+import { getProvider } from "../../modules/message/providers/provider.factory.js";
+import { redisConnection } from "../../shared/plugins/redis.js";
 
-const worker = new Worker(
+export const messageWorker = new Worker(
   "message-queue",
   async (job) => {
-    const service = new MessageService(new TwilioProvider());
-
     if (job.name === "send-message") {
-      await service.sendDebtReminder(job.data.debtId);
+      const { debtId, channel } = job.data as { debtId: string; channel: MessageChannel };
+      const debt = await findDebtWithClient(debtId);
+      const provider = getProvider(channel);
+      const result = await provider.send(debt);
+      await createMessageLog({ debtId, channel, status: result.status, sentAt: new Date() });
     }
   },
   {
-    connection: redisConnection,
+    connection: redisConnection(),
   },
 );
+
+messageWorker.on("failed", async (job) => {
+  if (job?.name === "send-message") {
+    const { debtId, channel } = job.data as { debtId: string; channel: MessageChannel };
+    await createMessageLog({
+      debtId,
+      channel,
+      status: MessageStatus.FAILED,
+      sentAt: new Date(),
+    });
+  }
+});
