@@ -17,6 +17,7 @@ model User {
   username  String?
   fullName  String?
   imageUrl  String?
+  companyName String?
   email     String   @unique
   password String?
   createdAt DateTime @default(now())
