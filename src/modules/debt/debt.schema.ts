@@ -1,12 +1,14 @@
 import { z } from "zod";
 
 export const DebtStatusSchema = z.enum(["PENDING", "PAID", "OVERDUE"]);
+export const MessageChannelSchema = z.enum(["SMS", "WHATSAPP", "EMAIL", "CALL"]);
 
 export const DebtSchema = z.object({
   id: z.string(),
   amount: z.number(),
   dueDate: z.coerce.date(),
   status: DebtStatusSchema,
+  channels: z.array(MessageChannelSchema),
   createdAt: z.coerce.date(),
   clientId: z.string(),
 });
@@ -15,6 +17,7 @@ export const CreateDebtSchema = z.object({
   amount: z.number().positive(),
   dueDate: z.coerce.date(),
   clientId: z.string(),
+  channels: z.array(MessageChannelSchema).default([]),
 });
 
 export const UpdateDebtStatusSchema = z.object({
