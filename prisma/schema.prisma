@@ -29,6 +29,8 @@ model Client {
   name      String
   phone     String?
   email     String?
+  /// Inline reminder template; null/empty uses system default. Future: precedence with reminderTemplateId -> MessageTemplate library.
+  reminderMessageTemplate String?
   createdAt DateTime @default(now())
 
   userId String

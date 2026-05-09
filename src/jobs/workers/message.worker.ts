@@ -14,7 +14,13 @@ export const messageWorker = new Worker(
       const debt = await findDebtWithClient(debtId);
       const provider = getProvider(channel);
       const result = await provider.send(debt);
-      await createMessageLog({ debtId, channel, status: result.status, sentAt: new Date() });
+      await createMessageLog({
+        debtId,
+        channel,
+        status: result.status,
+        content: result.content,
+        sentAt: new Date(),
+      });
     }
   },
   {

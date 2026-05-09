@@ -3,8 +3,17 @@ import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import z from "zod";
 
-import { ClientSchema, CreateClientSchema } from "./client.schema.js";
-import { addClient, listClients, removeClient } from "./client.service.js";
+import {
+  ClientSchema,
+  CreateClientSchema,
+  UpdateClientSchema,
+} from "./client.schema.js";
+import {
+  addClient,
+  listClients,
+  patchClient,
+  removeClient,
+} from "./client.service.js";
 
 export async function clientRoutes(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -47,6 +56,34 @@ export async function clientRoutes(app: FastifyInstance) {
 
       const client = await addClient(userId, request.body);
       return reply.code(201).send(client);
+    },
+  });
+
+  app.withTypeProvider<ZodTypeProvider>().route({
+    method: "PATCH",
+    url: "/clients/:id",
+    schema: {
+      description:
+        "Update client (partial). reminderMessageTemplate: placeholders {{clientName}}, {{amount}}, {{dueDate}}, {{dueDateSpoken}}, {{sender}}, {{companyName}}; null or empty clears custom message (system default).",
+      tags: ["clients"],
+      params: z.object({ id: z.string() }),
+      body: UpdateClientSchema,
+      response: {
+        200: ClientSchema,
+        401: z.object({ error: z.string() }),
+        404: z.object({ error: z.string() }),
+      },
+    },
+    handler: async (request, reply) => {
+      const { isAuthenticated, userId } = getAuth(request);
+      if (!isAuthenticated || !userId)
+        return reply.code(401).send({ error: "User not authenticated" });
+
+      const updated = await patchClient(userId, request.params.id, request.body);
+      if (!updated)
+        return reply.code(404).send({ error: "Client not found" });
+
+      return reply.code(200).send(updated);
     },
   });
 

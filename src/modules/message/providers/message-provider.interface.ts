@@ -1,14 +1,10 @@
 import type { MessageStatus } from "../../../../generated/prisma/enums.js";
-import type {
-  ClientModel,
-  DebtModel,
-  UserModel,
-} from "../../../../generated/prisma/models.js";
+import type { DebtReminderContext } from "../../../shared/utils/resolve-reminder-message.js";
 
-export type DebtWithClientAndUser = DebtModel & {
-  client: ClientModel & { user: UserModel };
-};
+export type DebtWithClientAndUser = DebtReminderContext;
 
 export interface IMessageProvider {
-  send(debt: DebtWithClientAndUser): Promise<{ status: MessageStatus }>;
+  send(
+    debt: DebtWithClientAndUser,
+  ): Promise<{ status: MessageStatus; content: string }>;
 }

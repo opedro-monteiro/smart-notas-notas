@@ -1,8 +1,9 @@
 services:
   postgresql:
     image: "bitnami/postgresql:latest"
+    # Use 5433 on the host if another project (e.g. smart-vidros-saas) already binds 5432.
     ports:
-      - 5432:5432
+      - "5433:5432"
     environment:
       POSTGRESQL_USERNAME: smart
       POSTGRESQL_PASSWORD: postgres

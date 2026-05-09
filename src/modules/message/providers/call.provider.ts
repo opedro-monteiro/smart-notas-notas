@@ -2,6 +2,10 @@ import twilio from "twilio";
 import type { CallInstance } from "twilio/lib/rest/api/v2010/account/call.js";
 
 import { MessageStatus } from "../../../../generated/prisma/enums.js";
+import {
+  escapeXmlForTwiml,
+  resolveCallSayInnerText,
+} from "../../../shared/utils/resolve-reminder-message.js";
 import type { DebtWithClientAndUser, IMessageProvider } from "./message-provider.interface.js";
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -27,13 +31,8 @@ export class CallProvider implements IMessageProvider {
       throw new Error(`Client ${debt.client.id} has no phone number for Call`);
     }
 
-    const { companyName, fullName } = debt.client.user;
-    const sender = companyName ?? fullName ?? "SmartNotas";
-    const senderText = companyName
-      ? `com a empresa ${sender}`
-      : `com o ${sender}`;
-
-    const twiml = `<Response><Say language="pt-BR">Olá ${debt.client.name}. Você possui uma dívida de ${debt.amount} reais, ${senderText}, que vence amanhã. Por favor, regularize seu pagamento ou entre em contato para mais informações.</Say></Response>`;
+    const innerText = resolveCallSayInnerText(debt);
+    const twiml = `<Response><Say language="pt-BR">${escapeXmlForTwiml(innerText)}</Say></Response>`;
 
     const response = await twilioClient.calls.create({
       twiml,
@@ -41,6 +40,9 @@ export class CallProvider implements IMessageProvider {
       to: debt.client.phone,
     });
 
-    return { status: callStatusMap[response.status] };
+    return {
+      status: callStatusMap[response.status],
+      content: innerText,
+    };
   }
 }
