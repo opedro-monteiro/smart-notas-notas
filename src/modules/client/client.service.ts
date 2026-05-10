@@ -6,6 +6,7 @@ import {
   updateClient,
 } from "./client.repository.js";
 import type { CreateClientDTO, UpdateClientDTO } from "./client.schema.js";
+import { assertClientLimit } from "../subscription/subscription.service.js";
 
 export async function listClients(userId: string) {
   return findClientsByUserId(userId);
@@ -16,6 +17,7 @@ export async function getClient(id: string) {
 }
 
 export async function addClient(userId: string, data: CreateClientDTO) {
+  await assertClientLimit(userId);
   return createClient(userId, data);
 }
 

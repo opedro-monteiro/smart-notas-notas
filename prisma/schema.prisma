@@ -13,15 +13,16 @@ datasource db {
 }
 
 model User {
-  id        String   @id
-  username  String?
-  fullName  String?
-  imageUrl  String?
+  id          String        @id
+  username    String?
+  fullName    String?
+  imageUrl    String?
   companyName String?
-  email     String   @unique
-  password String?
-  createdAt DateTime @default(now())
-  clients   Client[]
+  email       String        @unique
+  password    String?
+  createdAt   DateTime      @default(now())
+  clients     Client[]
+  subscription Subscription?
 }
 
 model Client {
@@ -63,6 +64,48 @@ model MessageLog {
 
   debtId String
   debt   Debt @relation(fields: [debtId], references: [id], onDelete: Cascade)
+}
+
+model Subscription {
+  id                 String             @id @default(uuid())
+  status             SubscriptionStatus @default(TRIALING)
+  planTier           PlanTier           @default(STARTER)
+  trialEndsAt        DateTime
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  canceledAt         DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  userId String       @unique
+  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  usage  MessageUsage[]
+}
+
+model MessageUsage {
+  id          String         @id @default(uuid())
+  channel     MessageChannel
+  count       Int            @default(0)
+  periodStart DateTime
+  periodEnd   DateTime
+
+  subscriptionId String
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriptionId, channel, periodStart])
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  CANCELED
+  EXPIRED
+}
+
+enum PlanTier {
+  STARTER
+  GROWTH
+  SCALE
 }
 
 enum DebtStatus {

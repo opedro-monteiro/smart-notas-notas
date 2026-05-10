@@ -4,6 +4,7 @@ import { type MessageChannel,MessageStatus } from "../../../generated/prisma/enu
 import { findDebtWithClient } from "../../modules/debt/debt.repository.js";
 import { createMessageLog } from "../../modules/message/message.repository.js";
 import { getProvider } from "../../modules/message/providers/provider.factory.js";
+import { assertAndIncrementMessageUsage } from "../../modules/subscription/subscription.service.js";
 import { redisConnection } from "../../shared/plugins/redis.js";
 
 export const messageWorker = new Worker(
@@ -12,6 +13,7 @@ export const messageWorker = new Worker(
     if (job.name === "send-message") {
       const { debtId, channel } = job.data as { debtId: string; channel: MessageChannel };
       const debt = await findDebtWithClient(debtId);
+      await assertAndIncrementMessageUsage(debt.client.userId, channel);
       const provider = getProvider(channel);
       const result = await provider.send(debt);
       await createMessageLog({

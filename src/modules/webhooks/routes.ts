@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import z from "zod";
 
+import { createTrial } from "../subscription/subscription.service.js";
 import { registerUserFromClerk } from "../user/user.service.js";
 import type { CreatedUserClerkResponse } from "./types.js";
 
@@ -18,7 +19,9 @@ export async function webhookRoutes(app: FastifyInstance) {
       },
     },
     handler: async (request, reply) => {
-      await registerUserFromClerk(request.body as CreatedUserClerkResponse);
+      const payload = request.body as CreatedUserClerkResponse;
+      const user = await registerUserFromClerk(payload);
+      await createTrial(user.id);
       return reply.code(200);
     },
   });

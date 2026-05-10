@@ -8,6 +8,15 @@ importers:
 
   .:
     dependencies:
+      '@abacatepay/rest':
+        specifier: ^0.0.3
+        version: 0.0.3
+      '@abacatepay/types':
+        specifier: ^2.0.3
+        version: 2.0.3
+      '@abacatepay/zod':
+        specifier: ^1.0.1
+        version: 1.0.1(typescript@5.9.3)(zod@4.3.6)
       '@clerk/fastify':
         specifier: ^3.1.4
         version: 3.1.4(fastify@5.7.4)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -104,6 +113,20 @@ importers:
         version: 8.57.1(eslint@10.1.0(jiti@2.6.1))(typescript@5.9.3)
 
 packages:
+
+  '@abacatepay/rest@0.0.3':
+    resolution: {integrity: sha512-s1yXEZ+EiGYPvvZX6QcZyfIOdrgpLG8fh2cghEaU0kBZoOfYS7ik2zAja1NvfnFsL7PRNtY/tXQF3euf4zdvIA==}
+    engines: {bun: '>=1.0.0', node: '>=18'}
+
+  '@abacatepay/types@2.0.3':
+    resolution: {integrity: sha512-JWi6cH9n86BMgCF4TUu09gN6LmJQP35q4w305+zt23KLALtiWwsFgxejexaTffamkXWDOgJJ8sCgcxh6x9iuMw==}
+
+  '@abacatepay/zod@1.0.1':
+    resolution: {integrity: sha512-kImeVgzoABmomIuoEewBN3AXEF8osFVjHVSLtCUP6STJB+jz9Di88FcqEe3mn1pfs3dt+sHfvXQOW27Uve8PUw==}
+    engines: {bun: '>=1.0.0', node: '>=18'}
+    peerDependencies:
+      typescript: ^5
+      zod: ^4.3.6
 
   '@chevrotain/cst-dts-gen@10.5.0':
     resolution: {integrity: sha512-lhmC/FyqQ2o7pGK4Om+hzuDrm9rhFYIJ/AXoQBeongmn870Xeb0L6oGEiuR8nohFNL5sMaQEJWCxr1oIVIVXrw==}
@@ -1744,6 +1767,15 @@ packages:
     resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
 snapshots:
+
+  '@abacatepay/rest@0.0.3': {}
+
+  '@abacatepay/types@2.0.3': {}
+
+  '@abacatepay/zod@1.0.1(typescript@5.9.3)(zod@4.3.6)':
+    dependencies:
+      typescript: 5.9.3
+      zod: 4.3.6
 
   '@chevrotain/cst-dts-gen@10.5.0':
     dependencies:

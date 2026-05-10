@@ -14,6 +14,7 @@ import {
   patchClient,
   removeClient,
 } from "./client.service.js";
+import { PlanLimitError, NoActiveSubscriptionError } from "../subscription/subscription.errors.js";
 
 export async function clientRoutes(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -47,6 +48,7 @@ export async function clientRoutes(app: FastifyInstance) {
       response: {
         201: ClientSchema,
         401: z.object({ error: z.string() }),
+        402: z.object({ error: z.string() }),
       },
     },
     handler: async (request, reply) => {
@@ -54,8 +56,15 @@ export async function clientRoutes(app: FastifyInstance) {
       if (!isAuthenticated)
         return reply.code(401).send({ error: "User not authenticated" });
 
-      const client = await addClient(userId, request.body);
-      return reply.code(201).send(client);
+      try {
+        const client = await addClient(userId, request.body);
+        return reply.code(201).send(client);
+      } catch (err) {
+        if (err instanceof PlanLimitError || err instanceof NoActiveSubscriptionError) {
+          return reply.code(402).send({ error: err.message });
+        }
+        throw err;
+      }
     },
   });
 
